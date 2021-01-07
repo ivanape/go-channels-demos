@@ -67,6 +67,10 @@ func (j *Job) Run() ([]reflect.Value, error) {
 	return result, nil
 }
 
+func (j *Job) Wait() {
+	<-j.done
+}
+
 func getFunctionName(fn interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 }

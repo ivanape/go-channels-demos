@@ -47,17 +47,16 @@ func main() {
 	jobsManager = NewJobManager()
 	jobsManager.StartManager()
 
-	/*job := NewJob("1")
+	job := NewJob("1")
 	_ = job.Do(run, job)
 	_, _ = jobsManager.RunJob(job)
+	job.Wait()
 
-	<-job.done*/
-
-	/*job1 := NewJob("3")
+	job1 := NewJob("3")
 	_ = job1.Do(run, job1)
 	job2 := NewJob("4")
 	_ = job2.Do(run, job2)
-	_ = jobsManager.RunJobsInSequence(job1, job2)*/
+	_ = jobsManager.RunJobsInSequence(job1, job2)
 
 	job3 := NewJob("5")
 	_ = job3.Do(run, job3)

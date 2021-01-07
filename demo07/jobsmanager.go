@@ -48,7 +48,7 @@ func (j *JobsManager) RunJob(job *Job) (*Job, error) {
 func (j *JobsManager) RunJobsInSequence(jobs ...*Job) error {
 	for _, job := range jobs {
 		j.RunJob(job)
-		<-job.done
+		job.Wait()
 	}
 
 	return nil
