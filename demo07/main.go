@@ -47,11 +47,11 @@ func main() {
 	jobsManager = NewJobManager()
 	jobsManager.StartManager()
 
-	job := NewJob("1")
+	/*job := NewJob("1")
 	_ = job.Do(run, job)
 	_, _ = jobsManager.RunJob(job)
 
-	<-job.done
+	<-job.done*/
 
 	/*job1 := NewJob("3")
 	_ = job1.Do(run, job1)
@@ -61,7 +61,7 @@ func main() {
 
 	job3 := NewJob("5")
 	_ = job3.Do(run, job3)
-	job4 := NewJob("6")
+	job4 := NewJob("hello")
 	_ = job4.Do(task1, "ivan")
 	_ = jobsManager.RunJobsInParallel(job3, job4)
 

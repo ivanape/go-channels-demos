@@ -75,8 +75,9 @@ func (j *JobsManager) RunJobsInParallel(jobs ...*Job) error {
 
 	for jobsRunning > 0 {
 		select {
-		case <-done:
+		case job := <-done:
 			jobsRunning--
+			j.doneChannel <- job
 		}
 	}
 
@@ -103,7 +104,9 @@ func (j *JobsManager) registerWorker() {
 		select {
 		case job := <-j.workerChannel:
 			job.Status = Running
-			_, _ = job.Run()
+			value, err := job.Run()
+
+			log.Printf("%v %v", value, err)
 
 			if job.result.err != errCancelled {
 				jobsManager.doneChannel <- job

@@ -9,7 +9,7 @@ var (
 	defaultDuration = 3
 )
 
-func run(job *Job) {
+func run(job *Job) (string, error) {
 	log.Printf("Starting job %s\n", job.Id)
 
 	executeStepIfValid(job, step1, job.Id)
@@ -17,6 +17,8 @@ func run(job *Job) {
 	executeStepIfValid(job, step3, job.Id)
 
 	cleanup(job.Id)
+
+	return "done", nil
 }
 
 func executeStepIfValid(job *Job, f func(p string), p string) {
