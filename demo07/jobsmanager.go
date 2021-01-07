@@ -38,13 +38,8 @@ func (j *JobsManager) StartManager() {
 func (j *JobsManager) AddJob(id string) (*Job, error) {
 	j.m.Lock()
 	defer j.m.Unlock()
-	newJob := &Job{
-		Id:      id,
-		Status:  Pending,
-		funcs:   make(map[string]interface{}),
-		fparams: make(map[string][]interface{}),
-	}
-	_ = newJob.SetTask(run, newJob)
+	newJob := NewJob(id)
+	_ = newJob.DoTask(run, newJob)
 
 	j.jobList[id] = newJob
 	j.workerChannel <- newJob

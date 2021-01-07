@@ -37,7 +37,16 @@ const (
 	Cancelled
 )
 
-func (j *Job) SetTask(jobFun interface{}, params ...interface{}) error {
+func NewJob(id string) *Job {
+	return &Job{
+		Id:      id,
+		Status:  Pending,
+		funcs:   make(map[string]interface{}),
+		fparams: make(map[string][]interface{}),
+	}
+}
+
+func (j *Job) DoTask(jobFun interface{}, params ...interface{}) error {
 	typ := reflect.TypeOf(jobFun)
 	if typ.Kind() != reflect.Func {
 		return ErrNotAFunction
