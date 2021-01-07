@@ -13,7 +13,7 @@ var (
 type JobsManager struct {
 	m             sync.Mutex
 	jobList       map[string]*Job
-	jobChannel    chan *Job
+	workerChannel chan *Job
 	doneChannel   chan *Job
 	cancelChannel chan *Job
 	workerSize    int
@@ -22,7 +22,7 @@ type JobsManager struct {
 func NewJobManager() *JobsManager {
 	return &JobsManager{
 		jobList:       make(map[string]*Job),
-		jobChannel:    make(chan *Job),
+		workerChannel: make(chan *Job),
 		doneChannel:   make(chan *Job),
 		cancelChannel: make(chan *Job),
 		workerSize:    100, //By default allow 100 concurrent tasks
@@ -47,7 +47,7 @@ func (j *JobsManager) AddJob(id string) (*Job, error) {
 	_ = newJob.SetTask(run, newJob)
 
 	j.jobList[id] = newJob
-	j.jobChannel <- newJob
+	j.workerChannel <- newJob
 
 	return newJob, nil
 }
@@ -70,7 +70,7 @@ func (j *JobsManager) GetJobs() map[string]*Job {
 func (j *JobsManager) registerWorker() {
 	for {
 		select {
-		case job := <-j.jobChannel:
+		case job := <-j.workerChannel:
 			job.Status = Running
 			_, _ = job.Run()
 
@@ -78,16 +78,16 @@ func (j *JobsManager) registerWorker() {
 				jobsManager.doneChannel <- job
 			}
 
-		case doneJob := <-j.doneChannel:
-			doneJob.Status = Done
-			log.Printf("Job %s is done\n", doneJob.Id)
+		case job := <-j.doneChannel:
+			job.Status = Done
+			log.Printf("Job %s is done\n", job.Id)
 
-		case cancelledJob := <-j.cancelChannel:
-			cancelledJob.Status = Cancelled
-			cancelledJob.result = JobResult{
+		case job := <-j.cancelChannel:
+			job.Status = Cancelled
+			job.result = JobResult{
 				err: errCancelled,
 			}
-			log.Printf("Job %s is cancelled\n", cancelledJob.Id)
+			log.Printf("Job %s is cancelled\n", job.Id)
 		}
 	}
 }
