@@ -39,8 +39,8 @@ func (j *JobsManager) AddJob(id string) (*Job, error) {
 	j.m.Lock()
 	defer j.m.Unlock()
 	newJob := &Job{
-		id:      id,
-		status:  Pending,
+		Id:      id,
+		Status:  Pending,
 		funcs:   make(map[string]interface{}),
 		fparams: make(map[string][]interface{}),
 	}
@@ -71,7 +71,7 @@ func (j *JobsManager) registerWorker() {
 	for {
 		select {
 		case job := <-j.jobChannel:
-			job.status = Running
+			job.Status = Running
 			_, _ = job.Run()
 
 			if job.result.err != errCancelled {
@@ -79,15 +79,15 @@ func (j *JobsManager) registerWorker() {
 			}
 
 		case doneJob := <-j.doneChannel:
-			doneJob.status = Done
-			log.Printf("Job %s is done\n", doneJob.id)
+			doneJob.Status = Done
+			log.Printf("Job %s is done\n", doneJob.Id)
 
 		case cancelledJob := <-j.cancelChannel:
-			cancelledJob.status = Cancelled
+			cancelledJob.Status = Cancelled
 			cancelledJob.result = JobResult{
 				err: errCancelled,
 			}
-			log.Printf("Job %s is cancelled\n", cancelledJob.id)
+			log.Printf("Job %s is cancelled\n", cancelledJob.Id)
 		}
 	}
 }

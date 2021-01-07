@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"encoding/json"
 	"net/http"
 )
 
@@ -10,19 +10,24 @@ var jobsManager *JobsManager
 func startTask(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
-	_, _ = jobsManager.AddJob(id)
+	job, _ := jobsManager.AddJob(id)
 
-	log.Printf("Request with id %s has ended\n", id)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(job)
 }
 
 func stopTask(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 
-	_, _ = jobsManager.RemoveJob(id)
+	job, _ := jobsManager.RemoveJob(id)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(job)
 }
 
 func status(w http.ResponseWriter, r *http.Request) {
-	jobsManager.GetJobs()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(jobsManager.GetJobs())
 }
 
 func main() {

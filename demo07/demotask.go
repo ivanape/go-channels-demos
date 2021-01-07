@@ -6,18 +6,18 @@ import (
 )
 
 func run(job *Job) {
-	log.Printf("Starting job %s\n", job.id)
+	log.Printf("Starting job %s\n", job.Id)
 
-	executeStepIfValid(job, step1, job.id)
-	executeStepIfValid(job, step2, job.id)
-	executeStepIfValid(job, step3, job.id)
+	executeStepIfValid(job, step1, job.Id)
+	executeStepIfValid(job, step2, job.Id)
+	executeStepIfValid(job, step3, job.Id)
 
-	cleanup(job.id)
+	cleanup(job.Id)
 }
 
 func executeStepIfValid(job *Job, f func(p string), p string) {
 	if job.result.err == errCancelled {
-		log.Printf("Job %s has been cancelled. Bypass method execution.", job.id)
+		log.Printf("Job %s has been cancelled. Bypass method execution.", job.Id)
 		return
 	}
 

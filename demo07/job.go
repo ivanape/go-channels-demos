@@ -17,8 +17,8 @@ var (
 type Status int
 
 type Job struct {
-	id      string
-	status  Status
+	Id      string
+	Status  Status
 	result  JobResult
 	funcs   map[string]interface{}   // Map for the function task store
 	fparams map[string][]interface{} // Map for function and  params of function
