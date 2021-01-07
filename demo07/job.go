@@ -21,6 +21,7 @@ type Job struct {
 	funcs   map[string]interface{}   // Map for the function task store
 	fparams map[string][]interface{} // Map for function and  params of function
 	jobFunc string
+	done    chan struct{}
 }
 
 type JobResult struct {
@@ -41,10 +42,11 @@ func NewJob(id string) *Job {
 		Status:  Pending,
 		funcs:   make(map[string]interface{}),
 		fparams: make(map[string][]interface{}),
+		done:    make(chan struct{}),
 	}
 }
 
-func (j *Job) DoTask(jobFun interface{}, params ...interface{}) error {
+func (j *Job) Do(jobFun interface{}, params ...interface{}) error {
 	typ := reflect.TypeOf(jobFun)
 	if typ.Kind() != reflect.Func {
 		return ErrNotAFunction

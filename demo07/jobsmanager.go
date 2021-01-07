@@ -35,19 +35,46 @@ func (j *JobsManager) StartManager() {
 	}
 }
 
-func (j *JobsManager) AddJob(id string) (*Job, error) {
+func (j *JobsManager) RunJob(job *Job) (*Job, error) {
 	j.m.Lock()
 	defer j.m.Unlock()
-	newJob := NewJob(id)
-	_ = newJob.DoTask(run, newJob)
 
-	j.jobList[id] = newJob
-	j.workerChannel <- newJob
+	j.jobList[job.Id] = job
+	j.workerChannel <- job
 
-	return newJob, nil
+	return job, nil
 }
 
-func (j *JobsManager) RemoveJob(id string) (*Job, error) {
+func (j *JobsManager) RunJobsInSequence(jobs ...*Job) error {
+	j.m.Lock()
+	for _, job := range jobs {
+		j.jobList[job.Id] = job
+	}
+	j.m.Unlock()
+
+	for _, job := range jobs {
+		j.workerChannel <- job
+		<-job.done
+	}
+
+	return nil
+}
+
+func (j *JobsManager) RunJobsInParallel(jobs ...*Job) (chan struct{}, error) {
+	j.m.Lock()
+	defer j.m.Unlock()
+
+	for _, job := range jobs {
+		j.jobList[job.Id] = job
+		j.workerChannel <- job
+	}
+
+	wait := make(chan struct{})
+
+	return wait, nil
+}
+
+func (j *JobsManager) StopJob(id string) (*Job, error) {
 	j.m.Lock()
 	defer jobsManager.m.Unlock()
 	job := j.jobList[id]
@@ -71,6 +98,7 @@ func (j *JobsManager) registerWorker() {
 
 			if job.result.err != errCancelled {
 				jobsManager.doneChannel <- job
+				close(job.done)
 			}
 
 		case job := <-j.doneChannel:
@@ -82,6 +110,7 @@ func (j *JobsManager) registerWorker() {
 			job.result = JobResult{
 				err: errCancelled,
 			}
+			close(job.done)
 			log.Printf("Job %s is cancelled\n", job.Id)
 		}
 	}
