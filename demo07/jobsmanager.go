@@ -46,32 +46,41 @@ func (j *JobsManager) RunJob(job *Job) (*Job, error) {
 }
 
 func (j *JobsManager) RunJobsInSequence(jobs ...*Job) error {
-	j.m.Lock()
 	for _, job := range jobs {
-		j.jobList[job.Id] = job
-	}
-	j.m.Unlock()
-
-	for _, job := range jobs {
-		j.workerChannel <- job
+		j.RunJob(job)
 		<-job.done
 	}
 
 	return nil
 }
 
-func (j *JobsManager) RunJobsInParallel(jobs ...*Job) (chan struct{}, error) {
-	j.m.Lock()
-	defer j.m.Unlock()
+func (j *JobsManager) RunJobsInParallel(jobs ...*Job) error {
+	// Run jobs in parallel
+	jobsRunning := 0
+	done := make(chan *Job, len(jobs))
+	defer close(done)
 
+	j.m.Lock()
 	for _, job := range jobs {
+		jobsRunning++
 		j.jobList[job.Id] = job
-		j.workerChannel <- job
+
+		// Run the job in it's own goroutine
+		go func(job *Job) {
+			defer func() { done <- job }()
+			job.Run()
+		}(job)
+	}
+	j.m.Unlock()
+
+	for jobsRunning > 0 {
+		select {
+		case <-done:
+			jobsRunning--
+		}
 	}
 
-	wait := make(chan struct{})
-
-	return wait, nil
+	return nil
 }
 
 func (j *JobsManager) StopJob(id string) (*Job, error) {
@@ -98,11 +107,11 @@ func (j *JobsManager) registerWorker() {
 
 			if job.result.err != errCancelled {
 				jobsManager.doneChannel <- job
-				close(job.done)
 			}
 
 		case job := <-j.doneChannel:
 			job.Status = Done
+			close(job.done)
 			log.Printf("Job %s is done\n", job.Id)
 
 		case job := <-j.cancelChannel:
@@ -114,4 +123,13 @@ func (j *JobsManager) registerWorker() {
 			log.Printf("Job %s is cancelled\n", job.Id)
 		}
 	}
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

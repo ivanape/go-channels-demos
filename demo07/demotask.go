@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+var (
+	defaultDuration = 3
+)
+
 func run(job *Job) {
 	log.Printf("Starting job %s\n", job.Id)
 
@@ -26,19 +30,19 @@ func executeStepIfValid(job *Job, f func(p string), p string) {
 
 func step1(jobId string) {
 	log.Printf("Starting step1 for Job %s\n", jobId)
-	time.Sleep(10 * time.Second)
+	time.Sleep(time.Duration(defaultDuration) * time.Second)
 	log.Println("Ending step1")
 }
 
 func step2(jobId string) {
 	log.Printf("Starting step2 for Job %s\n", jobId)
-	time.Sleep(10 * time.Second)
+	time.Sleep(time.Duration(defaultDuration) * time.Second)
 	log.Println("Ending step2")
 }
 
 func step3(jobId string) {
 	log.Printf("Starting step3 for Job %s\n", jobId)
-	time.Sleep(10 * time.Second)
+	time.Sleep(time.Duration(defaultDuration) * time.Second)
 	log.Println("Ending step3")
 }
 

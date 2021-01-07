@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -46,16 +47,23 @@ func main() {
 	jobsManager = NewJobManager()
 	jobsManager.StartManager()
 
-	/*job := NewJob("1")
+	job := NewJob("1")
 	_ = job.Do(run, job)
 	_, _ = jobsManager.RunJob(job)
 
-	<- job.done*/
+	<-job.done
 
-	job1 := NewJob("1")
+	/*job1 := NewJob("3")
 	_ = job1.Do(run, job1)
-	job2 := NewJob("2")
+	job2 := NewJob("4")
 	_ = job2.Do(run, job2)
-	_ = jobsManager.RunJobsInSequence(job1, job2)
+	_ = jobsManager.RunJobsInSequence(job1, job2)*/
 
+	job3 := NewJob("5")
+	_ = job3.Do(run, job3)
+	job4 := NewJob("6")
+	_ = job4.Do(task1, "ivan")
+	_ = jobsManager.RunJobsInParallel(job3, job4)
+
+	fmt.Printf("%v\n", jobsManager.GetJobs())
 }

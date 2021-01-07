@@ -21,7 +21,7 @@ type Job struct {
 	funcs   map[string]interface{}   // Map for the function task store
 	fparams map[string][]interface{} // Map for function and  params of function
 	jobFunc string
-	done    chan struct{}
+	done    chan interface{}
 }
 
 type JobResult struct {
@@ -42,7 +42,7 @@ func NewJob(id string) *Job {
 		Status:  Pending,
 		funcs:   make(map[string]interface{}),
 		fparams: make(map[string][]interface{}),
-		done:    make(chan struct{}),
+		done:    make(chan interface{}),
 	}
 }
 
