@@ -13,7 +13,7 @@ func startTask(w http.ResponseWriter, r *http.Request) {
 	job, _ := jobsManager.AddJob(id)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job)
 }
 
 func stopTask(w http.ResponseWriter, r *http.Request) {
@@ -22,12 +22,12 @@ func stopTask(w http.ResponseWriter, r *http.Request) {
 	job, _ := jobsManager.RemoveJob(id)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job)
 }
 
 func status(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(jobsManager.GetJobs())
+	_ = json.NewEncoder(w).Encode(jobsManager.GetJobs())
 }
 
 func main() {
